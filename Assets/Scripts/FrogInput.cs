@@ -24,6 +24,9 @@ public class FrogInput : NetworkBehaviour
     public GameObject tongueLengthGO;
     public float tongueShotSeconds;
 
+    public GameObject tonguePrefab;
+    public Transform tongueSpawn;
+
     [Header("Frog's Setup")]
     public GameObject frogGO;
 
@@ -82,21 +85,29 @@ public class FrogInput : NetworkBehaviour
     #region Tongue Action
     void ShootTongue()
     {
-        if (Input.GetKey(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            StartCoroutine(TongueShotTimer());
+            CmdTongueShot();
         }
     }
 
     IEnumerator TongueShotTimer()
     {
         tongueIsShooting = true;
-        tongueLengthGO.SetActive(true);
+
+        GameObject tonguer = (GameObject)Instantiate(tonguePrefab, tongueSpawn.position, tongueSpawn.rotation);
+        NetworkServer.Spawn(tonguer);
 
         yield return new WaitForSeconds(tongueShotSeconds);
 
+        Destroy(tonguer);
         tongueIsShooting = false;
-        tongueLengthGO.SetActive(false);
+    }
+
+    [Command]
+    void CmdTongueShot()
+    {
+        StartCoroutine(TongueShotTimer());
     }
     #endregion
 
@@ -110,7 +121,7 @@ public class FrogInput : NetworkBehaviour
             frogLife.lifeSeconds = 0f;
         }
 
-        Debug.Log(frogLife.lifeSeconds);
+        //Debug.Log(frogLife.lifeSeconds);
     }
     #endregion
 
@@ -120,8 +131,9 @@ public class FrogInput : NetworkBehaviour
         frogGO = GameObject.Find("Frog GO");
         tongueLengthGO = GameObject.Find("Length GO");
 
-        tongueLengthGO.SetActive(false);
-    }
+        tongueSpawn = GameObject.Find("TongueSpawn").transform;
 
+        //tongueLengthGO.SetActive(false);
+    }
     #endregion
 }
