@@ -29,7 +29,7 @@ public class PlayerSpawn : MonoBehaviour
     #region Spawn As Frog
     void FrogSpawn()
     {
-        frogSpawnPoint.transform.position = new Vector3(-7,3.5f,0);
+        frogSpawnPoint.transform.position = new Vector3(-7,3.5f,-1);
 
         flyScript = GetComponent<FlyInput>();
         frogScript = GetComponent<FrogInput>();

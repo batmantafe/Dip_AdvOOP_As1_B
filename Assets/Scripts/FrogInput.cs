@@ -23,7 +23,6 @@ public class FrogInput : NetworkBehaviour
     [Header("Tongue")]
     public GameObject tongueLengthGO;
     public float tongueShotSeconds;
-
     public GameObject tonguePrefab;
     public Transform tongueSpawn;
 
@@ -132,8 +131,6 @@ public class FrogInput : NetworkBehaviour
         tongueLengthGO = GameObject.Find("Length GO");
 
         tongueSpawn = GameObject.Find("TongueSpawn").transform;
-
-        //tongueLengthGO.SetActive(false);
     }
     #endregion
 }
