@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FrogInput : MonoBehaviour
+using UnityEngine.Networking;
+
+public class FrogInput : NetworkBehaviour
 {
     // Nested Class
     public class LifeTime
@@ -19,12 +21,15 @@ public class FrogInput : MonoBehaviour
     public float rotateSpeed;
 
     [Header("Tongue")]
-    public GameObject tongueLength;
+    public GameObject tongueLengthGO;
     public float tongueShotSeconds;
-    
+
+    [Header("Frog's Setup")]
+    public GameObject frogGO;
+
     // Calling the LifeTime nested class:
     // --Create instance of LifeTime in FrogInput called frogLife.
-    // --Set lifeSeconds (=life) to 5f.
+    // --Set lifeSeconds (=life) to whatever-float.
     public LifeTime frogLife = new LifeTime(10f);
 
     // Private Variables
@@ -35,19 +40,27 @@ public class FrogInput : MonoBehaviour
     {
         Cursor.visible = false;
 
-        rotateSpeed = 20f;
-        tongueShotSeconds = 1f;
+        if (isLocalPlayer)
+        {
+            FrogSetup();
 
-        tongueIsShooting = false;
+            rotateSpeed = 20f;
+            tongueShotSeconds = 1f;
+
+            tongueIsShooting = false;
+        }
     }
 
     void Update()
     {
-        RotatingFrogHead();
+        if (isLocalPlayer)
+        {
+            RotatingFrogHead();
 
-        ShootTongue();
+            ShootTongue();
 
-        LifeCountdown();
+            LifeCountdown();
+        }
     }
     #endregion
 
@@ -56,12 +69,12 @@ public class FrogInput : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.A) && tongueIsShooting == false)
         {
-            transform.Rotate(Vector3.forward * (rotateSpeed * Time.deltaTime));
+            frogGO.transform.Rotate(Vector3.forward * (rotateSpeed * Time.deltaTime));
         }
 
         if (Input.GetKey(KeyCode.D) && tongueIsShooting == false)
         {
-            transform.Rotate(-Vector3.forward * (rotateSpeed * Time.deltaTime));
+            frogGO.transform.Rotate(-Vector3.forward * (rotateSpeed * Time.deltaTime));
         }
     }
     #endregion
@@ -78,16 +91,16 @@ public class FrogInput : MonoBehaviour
     IEnumerator TongueShotTimer()
     {
         tongueIsShooting = true;
-        tongueLength.SetActive(true);
+        tongueLengthGO.SetActive(true);
 
         yield return new WaitForSeconds(tongueShotSeconds);
 
         tongueIsShooting = false;
-        tongueLength.SetActive(false);
+        tongueLengthGO.SetActive(false);
     }
     #endregion
 
-    #region
+    #region Frog's Life Timer
     void LifeCountdown()
     {
         frogLife.lifeSeconds = frogLife.lifeSeconds - (1 * Time.deltaTime);
@@ -99,5 +112,13 @@ public class FrogInput : MonoBehaviour
 
         Debug.Log(frogLife.lifeSeconds);
     }
+    #endregion
+
+    #region Frog Setup
+    void FrogSetup()
+    {
+        frogGO = GameObject.Find("Frog GO");
+    }
+
     #endregion
 }

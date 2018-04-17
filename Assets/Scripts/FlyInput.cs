@@ -2,33 +2,46 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FlyInput : MonoBehaviour
+using UnityEngine.Networking;
+
+public class FlyInput : NetworkBehaviour
 {
+    [Header("Fly Movement")]
     public float movementSpeed;
     public Rigidbody rb;
 
+    // Private Variables
     private bool movingUp, movingDown, movingLeft, movingRight;
 
-    // Use this for initialization
+    #region Unity Functions
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
 
         movementSpeed = 5f;
 
-        movingDown = true;
-        movingUp = false;
-        movingLeft = false;
-        movingRight = false;
+        if (isLocalPlayer)
+        {
+            movingDown = false;
+            movingUp = false;
+            movingLeft = false;
+            movingRight = false;
+
+            RandomStartMovement();
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        FlyMomentum();
-        FlyMovement();
+        if (isLocalPlayer)
+        {
+            FlyMomentum();
+            FlyMovement();
+        }
     }
+    #endregion
 
+    #region Movements
     void FlyMomentum()
     {
         if (movingDown == true)
@@ -98,4 +111,69 @@ public class FlyInput : MonoBehaviour
             movingRight = true;
         }
     }
+
+    void RandomStartMovement()
+    {
+        int randomMove = Random.Range(0,4);
+
+        switch (randomMove)
+        {
+            case 0:
+                movingUp = true;
+                break;
+
+            case 1:
+                movingDown = true;
+                break;
+
+            case 2:
+                movingLeft = true;
+                break;
+
+            case 3:
+                movingRight = true;
+                break;
+        }
+    }
+    #endregion
+
+    #region Collisions
+    void OnCollisionEnter(Collision other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "Up Wall":
+                movingUp = false;
+                movingLeft = false;
+                movingRight = false;
+
+                movingDown = true;
+                break;
+
+            case "Down Wall":
+                movingDown = false;
+                movingLeft = false;
+                movingRight = false;
+
+                movingUp = true;
+                break;
+
+            case "Left Wall":
+                movingUp = false;
+                movingDown = false;
+                movingLeft = false;
+
+                movingRight = true;
+                break;
+
+            case "Right Wall":
+                movingUp = false;
+                movingDown = false;
+                movingRight = false;
+
+                movingLeft = true;
+                break;
+        }
+    }
+    #endregion
 }
