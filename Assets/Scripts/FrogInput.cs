@@ -118,6 +118,9 @@ public class FrogInput : NetworkBehaviour
     void FrogSetup()
     {
         frogGO = GameObject.Find("Frog GO");
+        tongueLengthGO = GameObject.Find("Length GO");
+
+        tongueLengthGO.SetActive(false);
     }
 
     #endregion
