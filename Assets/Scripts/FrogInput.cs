@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class FrogInput : NetworkBehaviour
 {
@@ -30,10 +31,13 @@ public class FrogInput : NetworkBehaviour
     [Header("Frog's Setup")]
     public GameObject frogGO;
 
+    [Header("Network Manager")]
+    public GameObject networkManager;
+
     // Calling the LifeTime nested class:
     // --Create instance of LifeTime in FrogInput called frogLife.
     // --Set lifeSeconds (=life) to whatever-float.
-    public LifeTime frogLife = new LifeTime(10f);
+    public static LifeTime frogLife = new LifeTime(10f);
 
     // Private Variables
     private bool tongueIsShooting;
@@ -49,7 +53,7 @@ public class FrogInput : NetworkBehaviour
 
             rotateSpeed = 20f;
             tongueShotSeconds = 0.25f;
-            tongueShotCooldown = 2f;
+            tongueShotCooldown = 1f;
 
             tongueIsShooting = false;
         }
@@ -122,10 +126,17 @@ public class FrogInput : NetworkBehaviour
 
         if (frogLife.lifeSeconds <= 0f)
         {
-            frogLife.lifeSeconds = 0f;
+            Debug.Log("FROG dies!");
+
+            Network.Disconnect();
+            MasterServer.UnregisterHost();
+
+            frogLife.lifeSeconds = 10f;
+
+            SceneManager.LoadScene("Lobby");
         }
 
-        //Debug.Log(frogLife.lifeSeconds);
+        Debug.Log(frogLife.lifeSeconds);
     }
     #endregion
 
@@ -136,6 +147,8 @@ public class FrogInput : NetworkBehaviour
         tongueLengthGO = GameObject.Find("Length GO");
 
         tongueSpawn = GameObject.Find("TongueSpawn").transform;
+
+        networkManager = GameObject.Find("NetworkManager");
     }
     #endregion
 }
