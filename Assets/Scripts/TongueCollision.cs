@@ -25,7 +25,7 @@ public class TongueCollision : NetworkBehaviour
         {
             Debug.Log(other.gameObject);
 
-            other.transform.parent.gameObject.GetComponent<NetworkIdentity>().connectionToClient.Disconnect();
+            other.transform.parent.gameObject.GetComponent<NetworkIdentity>().connectionToServer.Disconnect();
 
             FrogInput.frogLife.lifeSeconds = FrogInput.frogLife.lifeSeconds + flyTime;
         }

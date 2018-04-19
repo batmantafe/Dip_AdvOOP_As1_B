@@ -30,6 +30,7 @@ public class FrogInput : NetworkBehaviour
 
     [Header("Frog's Setup")]
     public GameObject frogGO;
+    public bool frogCanWin;
 
     [Header("Network Manager")]
     public GameObject networkManager;
@@ -56,6 +57,8 @@ public class FrogInput : NetworkBehaviour
             tongueShotCooldown = 1f;
 
             tongueIsShooting = false;
+
+            frogCanWin = false;
         }
     }
 
@@ -67,7 +70,27 @@ public class FrogInput : NetworkBehaviour
 
             ShootTongue();
 
-            LifeCountdown();
+            // Flies are in the game, Frog can now play to win
+            if (NetworkServer.connections.Count >= 2)
+            {
+                frogCanWin = true;
+
+                LifeCountdown();
+            }
+
+            // If no flies currently in the game BUT there WERE flies in the game earlier, then frog wins cos frog ate all flies
+            // DEBUG: Note that NetworkServer.connections.Count does not go down when a Client disconnects because the Count still saves a Null entry for that Client.
+            // DEBUG (cont.): Need to have a Function that creates a List from Count, then checks it for Null entries, then creates a new List that contains no Nulls,
+            // DEBUG (cont.): ...like the C#Features Tower Defence script List that adds nearest Enemies and removes destroyed Enemies.
+            if (NetworkServer.connections.Count <= 1 && frogCanWin == true)
+            {
+                Debug.Log("FROG wins");
+            }
+        }
+
+        if (isServer)
+        {
+            Debug.Log("Players are: " + NetworkServer.connections.Count);
         }
     }
     #endregion
@@ -90,7 +113,7 @@ public class FrogInput : NetworkBehaviour
     #region Tongue Action
     void ShootTongue()
     {
-        if (Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.KeypadEnter) && tongueIsShooting == false)
         {
             CmdTongueShot();
         }
@@ -124,14 +147,15 @@ public class FrogInput : NetworkBehaviour
     {
         frogLife.lifeSeconds = frogLife.lifeSeconds - (1 * Time.deltaTime);
 
-        if (frogLife.lifeSeconds <= 0f)
+        // IF time runs out AND still flies in the game THEN frog loses
+        if (frogLife.lifeSeconds <= 0.1f && NetworkServer.connections.Count >= 2)
         {
             Debug.Log("FROG dies!");
 
+            frogLife.lifeSeconds = 10f;
+
             Network.Disconnect();
             MasterServer.UnregisterHost();
-
-            frogLife.lifeSeconds = 10f;
 
             SceneManager.LoadScene("Lobby");
         }
