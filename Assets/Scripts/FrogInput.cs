@@ -25,6 +25,7 @@ public class FrogInput : NetworkBehaviour
     public float tongueShotSeconds;
     public GameObject tonguePrefab;
     public Transform tongueSpawn;
+    public float tongueShotCooldown;
 
     [Header("Frog's Setup")]
     public GameObject frogGO;
@@ -47,7 +48,8 @@ public class FrogInput : NetworkBehaviour
             FrogSetup();
 
             rotateSpeed = 20f;
-            tongueShotSeconds = 1f;
+            tongueShotSeconds = 0.25f;
+            tongueShotCooldown = 2f;
 
             tongueIsShooting = false;
         }
@@ -100,6 +102,9 @@ public class FrogInput : NetworkBehaviour
         yield return new WaitForSeconds(tongueShotSeconds);
 
         Destroy(tonguer);
+
+        yield return new WaitForSeconds(tongueShotCooldown);
+
         tongueIsShooting = false;
     }
 
